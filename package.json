@@ -20,6 +20,7 @@
   "dependencies": {
     "electron": "^18.0.3",
     "electron-prompt": "^1.7.0",
+    "electron-store": "^8.0.1",
     "mac-screen-capture-permissions": "^2.0.0"
   },
   "devDependencies": {

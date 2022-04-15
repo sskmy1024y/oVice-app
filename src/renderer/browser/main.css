@@ -1,4 +1,14 @@
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: inherit;
+  box-sizing: inherit;
+}
+
 html {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  font-size: 62.5%;
   width: 100%;
   height: 100%;
 }
@@ -9,54 +19,53 @@ body {
   height: 100%;
 }
 
-#app {
-  width: 100%;
+button,
+input {
+  border: 0;
+  outline: 0;
+  font-size: 16px;
+  padding: 8px;
+  text-shadow: 1px 1px 0 #FFF;
+  color: #61677C;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+  background-color: #FFF;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover {
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: -2px -2px 5px #FFF, 2px 2px 5px #BABECC;
+}
+
+button:active {
+  box-shadow: inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF;
+}
+
+#header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  padding-left: 72px;
+  padding-right: 4px;
+  height: 40px;
+}
+
+.draggable {
+  display: flex;
+  flex: 1;
   height: 100%;
+  -webkit-app-region: drag;
 }
-
-div.menu {
-  width: 100%;
-  padding: 5px;
-  background-color: white;
-  color: black;
-  white-space: nowrap;
-  height: 33px;
-}
-
-input.address {
-  width: 50%;
-}
-
-.browser-container {
-  height: 100%;
-}
-
-.browser {
-  display: inline-block;
-  width: 100%;
-  height: 100%
-}
-
-.ready {
-  color: black;
-}
-
-.disabled {
-  color: darkgray;
-}
-
-.loading {
-  background-size: contain;
-  background: url(../shared/images/spinner.gif) no-repeat right;
-}
-
-
 #toolbar {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  padding-left: 72px;
   height: 40px;
-  -webkit-app-region: drag;
 }
 
 #minimizedOverlay {
@@ -67,4 +76,24 @@ input.address {
   bottom: 0;
   z-index: 9999;
   -webkit-app-region: drag;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1d1d1f;
+  }
+
+  button {
+    color: #6e6e73;
+    background-color: #1d1d1f;
+    text-shadow: 1px 1px 0 #1d1d1f;
+  }
+
+  button:hover {
+    box-shadow: -2px -2px 5px #1d1d1f, 2px 2px 5px #424245;
+  }
+
+  button:active {
+    box-shadow: inset 1px 1px 2px #424245, inset -1px -1px 2px #1d1d1f;
+  }
 }

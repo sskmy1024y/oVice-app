@@ -5,10 +5,9 @@ const { init: initPicker, show: showPicker } = require("./screen-picker.js");
 const messages = require("./api/lib/messages.js");
 const {
   restoreWindow,
-  toggleMinimize,
-  togglePin,
   handleSelectedScreenId,
   handleOpenPicker,
+  hanldeWindowMode,
 } = require("./window.js");
 
 function Application() {
@@ -19,11 +18,9 @@ function Application() {
     [messages.viewReload, this.reload],
     [messages.restore, this.restore],
     [messages.resetWindow, this.resetWindow],
-    // [messages.requestDisplayMedia, this.requestDisplayMedia],
-    [messages.toggleMinimize, this.toggleMinimize],
-    [messages.togglePin, this.togglePin],
     [messages.showPicker, this.showPicker],
     [messages.sourceIdSelected, this.sourceIdSelected],
+    [messages.changeWindowMode, this.changeWindowMode],
   ];
 }
 Application.prototype = {
@@ -63,13 +60,9 @@ Application.prototype = {
     const window = event.event.sender.getOwnerBrowserWindow();
     restoreWindow(window, true);
   },
-  toggleMinimize: function (event) {
+  changeWindowMode: function (event) {
     const window = event.event.sender.getOwnerBrowserWindow();
-    toggleMinimize(window);
-  },
-  togglePin: function (event) {
-    const window = event.event.sender.getOwnerBrowserWindow();
-    togglePin(window);
+    hanldeWindowMode(window);
   },
   showPicker: function (event) {
     const window = event.event.sender.getOwnerBrowserWindow();

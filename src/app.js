@@ -6,6 +6,8 @@ const {
   minimize,
   restoreWindow,
   handleChangeDisplay,
+  handleMoved,
+  handleResized,
 } = require("./browser/window.js");
 
 /**
@@ -43,6 +45,14 @@ function registerWindowEvent() {
 
   window.on("blur", function () {
     minimize(this);
+  });
+
+  window.on("moved", function () {
+    handleMoved(this);
+  });
+
+  window.on("resized", function () {
+    handleResized(this);
   });
 
   window.on("close", function (event) {

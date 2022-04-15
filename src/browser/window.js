@@ -3,33 +3,44 @@
 const { BrowserWindow, BrowserView } = require("electron");
 const path = require("path");
 const messages = require("./api/lib/messages.js");
+const Store = require("electron-store");
+const store = new Store();
 
 const CONSTANTS = {
-  minimum: {
-    width: 280,
-    height: 200,
-  },
-  default: {
-    width: 1000,
-    height: 720,
+  window: {
+    minimum: {
+      width: 280,
+      height: 200,
+    },
+    default: {
+      width: 1000,
+      height: 720,
+    },
   },
 };
 
 const variables = {
   state: {
+    isMinimized: false,
     isScreenPicking: false,
   },
   setting: {
-    minimize: true,
-    pin: true,
+    mode: "minimize",
+    ...JSON.parse(store.get("setting", "{}")),
   },
-  size: {
-    width: CONSTANTS.default.width,
-    height: CONSTANTS.default.height,
-  },
-  position: {
-    x: 0,
-    y: 0,
+  window: {
+    default: {
+      width: CONSTANTS.window.default.width,
+      height: CONSTANTS.window.default.height,
+      x: 0,
+      y: 0,
+    },
+    minimum: {
+      width: CONSTANTS.window.minimum.width,
+      height: CONSTANTS.window.minimum.height,
+      x: null,
+      y: null,
+    },
   },
   screen: {
     width: 0,
@@ -46,38 +57,73 @@ function handleChangeDisplay() {
 }
 
 /**
+ * handle resized window
+ * @param {BrowserWindow} window
+ */
+function handleResized(window) {
+  const [width, height] = window.getSize();
+
+  if (variables.state.isMinimized) {
+    variables.window.minimum.width = width;
+    variables.window.minimum.height = height;
+  } else {
+    variables.window.default.width = width;
+    variables.window.default.height = height;
+  }
+
+  console.log(store.get("setting"));
+}
+
+/**
+ * handle moved window
+ * @param {BrowserWindow} window
+ */
+function handleMoved(window) {
+  const [x, y] = window.getPosition();
+
+  if (variables.state.isMinimized) {
+    variables.window.minimum.x = x;
+    variables.window.minimum.y = y;
+  } else {
+    variables.window.default.x = x;
+    variables.window.default.y = y;
+  }
+}
+
+/**
  * minimize window
  * @param {BrowserWindow} window
  */
 function minimize(window) {
-  if (!variables.setting.minimize || variables.state.isScreenPicking) return;
+  if (
+    variables.setting.mode !== "minimize" ||
+    variables.state.isMinimized ||
+    variables.state.isScreenPicking
+  )
+    return;
+  variables.state.isMinimized = true;
 
   /* save window size */
   const [width, height] = window.getSize();
-  variables.size.width = width;
-  variables.size.height = height;
+  variables.window.default.width = width;
+  variables.window.default.height = height;
 
   /* save window position */
   const [x, y] = window.getPosition();
-  variables.position.x = x;
-  variables.position.y = y;
+  variables.window.default.x = x;
+  variables.window.default.y = y;
 
-  window.setSize(CONSTANTS.minimum.width, CONSTANTS.minimum.height);
-  window.setPosition(
-    variables.screen.width - CONSTANTS.minimum.width,
-    variables.screen.height - CONSTANTS.minimum.height
+  window.setSize(
+    variables.window.minimum.width,
+    variables.window.minimum.height
   );
-  window.setAlwaysOnTop(true, "screen-saver"); // 常に最前面に表示する
-  window.setVisibleOnAllWorkspaces(true); // ワークスペース変わっても表示する
-
-  window.webContents.send(messages.minimize);
 
   const view = window.getBrowserView();
   view.setBounds({
     x: 0,
     y: 0,
-    width: CONSTANTS.minimum.width,
-    height: CONSTANTS.minimum.height,
+    width: variables.window.minimum.width,
+    height: variables.window.minimum.height,
   });
   view.webContents.setZoomFactor(0.8);
   view.webContents.executeJavaScript(`
@@ -103,6 +149,15 @@ function minimize(window) {
     if (document.getElementById("menu-block")) document.getElementById("menu-block").setAttribute("style", "display: flex; width: 290px; bottom: 16px; right: 16px; justify-content: space-between")
     if (document.querySelector("#away .center button")) document.querySelector("#away .center button").setAttribute("style", "z-index: 6000; font-size: 30px;")
     `);
+
+  window.setPosition(
+    variables.window.minimum.x ||
+      variables.screen.width - variables.window.minimum.width,
+    variables.window.minimum.y ||
+      variables.screen.height - variables.window.minimum.height
+  );
+  window.setAlwaysOnTop(true, "screen-saver"); // always display top
+  window.setVisibleOnAllWorkspaces(true); // show all workspace
 }
 
 /**
@@ -111,17 +166,23 @@ function minimize(window) {
  * @param {boolean} reset
  */
 function restoreWindow(window, reset = false) {
-  const width = reset ? CONSTANTS.default.width : variables.size.width;
-  const height = reset ? CONSTANTS.default.height : variables.size.height;
+  const width = reset
+    ? CONSTANTS.window.default.width
+    : variables.window.default.width;
+  const height = reset
+    ? CONSTANTS.window.default.height
+    : variables.window.default.height;
   const x = reset
-    ? variables.screen.width / 2 - CONSTANTS.default.width / 2
-    : variables.position.x;
+    ? variables.screen.width / 2 - CONSTANTS.window.default.width / 2
+    : variables.window.default.x;
   const y = reset
-    ? variables.screen.height / 2 - CONSTANTS.default.height / 2
-    : variables.position.y;
+    ? variables.screen.height / 2 - CONSTANTS.window.default.height / 2
+    : variables.window.default.y;
+
+  variables.state.isMinimized = false;
 
   window.setSize(width, height);
-  setTimeout(() => window.setPosition(x, y), 100);
+  window.setPosition(x, y);
 
   window.setAlwaysOnTop(false);
   window.setVisibleOnAllWorkspaces(false);
@@ -153,45 +214,51 @@ function restoreWindow(window, reset = false) {
 }
 
 /**
- * toggle auto minimize
  * @param {BrowserWindow} window
+ * @param {string} mode "pinned" | "minimize" | "normal"
  */
-function toggleMinimize(window) {
-  variables.setting.minimize = !variables.setting.minimize;
+function reflectWindowMode(window, mode) {
+  variables.setting.mode = mode;
 
-  if (variables.setting.minimize) {
-    window.webContents.executeJavaScript(`
-      document.getElementById("toggle-minimize").innerHTML = '<i class="fa-solid fa-window-maximize"></i>'
-    `);
-  } else {
-    window.webContents.executeJavaScript(`
-      document.getElementById("toggle-minimize").innerHTML = '<i class="fa-solid fa-minimize"></i>'
-    `);
-  }
-}
-
-/**
- * toggle pin
- * @param {BrowserWindow} window
- */
-function togglePin(window) {
-  variables.setting.pin = !variables.setting.pin;
-
-  if (variables.setting.pin) {
+  if (mode === "pinned") {
     window.setAlwaysOnTop(true);
     window.setVisibleOnAllWorkspaces(true);
     window.webContents.executeJavaScript(`
-      document.getElementById("toggle-pin").innerHTML = '<i class="fa-solid fa-spinner"></i>'
+      document.getElementById("window-mode").innerHTML = '<i class="fa-solid fa-thumbtack"></i>'
     `);
   } else {
     window.setAlwaysOnTop(false);
     window.setVisibleOnAllWorkspaces(false);
-    window.webContents.executeJavaScript(`
-      document.getElementById("toggle-pin").innerHTML = '<i class="fa-solid fa-thumbtack"></i>'
+
+    if (mode === "normal") {
+      window.webContents.executeJavaScript(`
+        document.getElementById("window-mode").innerHTML = '<i class="fa-solid fa-window-maximize"></i>'
+      `);
+    } else {
+      window.webContents.executeJavaScript(`
+      document.getElementById("window-mode").innerHTML = '<i class="fa-solid fa-minimize"></i>'
     `);
+    }
   }
 
-  window.set;
+  store.set("setting", JSON.stringify(variables.setting));
+}
+
+/**
+ * toggle auto minimize
+ * @param {BrowserWindow} window
+ */
+function hanldeWindowMode(window) {
+  const currentMode = variables.setting.mode; // "pinned" | "minimize" | "normal"
+
+  const nextMode =
+    currentMode === "minimize"
+      ? "pinned"
+      : currentMode === "pinned"
+      ? "normal"
+      : "minimize";
+
+  reflectWindowMode(window, nextMode);
 }
 
 /**
@@ -216,8 +283,8 @@ function handleSelectedScreenId(window, selectedId) {
 module.exports = {
   open: function () {
     const window = new BrowserWindow({
-      width: variables.size.width,
-      height: variables.size.height,
+      width: CONSTANTS.window.default.width,
+      height: CONSTANTS.window.default.height,
       titleBarStyle: "hidden",
       trafficLightPosition: { x: 10, y: 12 },
       webPreferences: {
@@ -249,7 +316,6 @@ module.exports = {
             captureSource,
             {
               set(obj, key, value) {
-                console.log(value);
                 resolve(value);
                 return Reflect.set(...arguments);
               },
@@ -265,13 +331,11 @@ module.exports = {
       }
       
       window.electronAPI.handleSourceIdSelected(function (event, id) {
-        console.log(id);
         captureSource.id = id;
       });
       
       navigator.mediaDevices.getDisplayMedia = async () => {
         const captureSourceId = await getDisplayMedia();
-        console.log(captureSourceId)
         
         // create MediaStream
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -284,10 +348,11 @@ module.exports = {
           },
         });
 
-
         return stream;
       };
     `);
+
+    reflectWindowMode(window, variables.setting.mode);
 
     view.webContents.openDevTools();
 
@@ -295,8 +360,9 @@ module.exports = {
   },
   minimize,
   restoreWindow,
-  toggleMinimize,
-  togglePin,
+  handleResized,
+  handleMoved,
+  hanldeWindowMode,
   handleOpenPicker,
   handleSelectedScreenId,
   handleChangeDisplay,

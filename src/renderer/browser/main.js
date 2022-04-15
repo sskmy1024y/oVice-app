@@ -1,10 +1,10 @@
 "use strict";
 
+
 function Application(id) {
-  document.getElementById("reload").onclick = this.reload;
-  document.getElementById("restore-size").onclick = this.restore;
-  document.getElementById("toggle-minimize").onclick = this.toggleMinimize;
-  document.getElementById("toggle-pin").onclick = this.togglePin;
+  // document.getElementById("reload").onclick = this.reload;
+  // document.getElementById("restore-size").onclick = this.restore;
+  document.getElementById("window-mode").onclick = this.changeWindowMode;
 }
 
 Application.prototype.reload = function () {
@@ -24,11 +24,8 @@ Application.prototype.toggleStick = function () {
     mainApp.unstick();
   }
 };
-Application.prototype.toggleMinimize = function () {
-  window.electronAPI.toggleMinimize();
-};
-Application.prototype.togglePin = function () {
-  window.electronAPI.togglePin();
+Application.prototype.changeWindowMode = function () {
+  window.electronAPI.changeWindowMode();
 };
 
 var app = null;

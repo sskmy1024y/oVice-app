@@ -3,12 +3,12 @@ module.exports = {
   unstick: "unstick",
   appReady: "app-ready",
   viewReload: "view-reload",
-  minimize: "minimize",
   restore: "restore",
   resetWindow: "reset-window",
   showPicker: "show-picker",
   getSources: "get-sources",
   sourceIdSelected: "source-id-selected",
+  changeWindowMode: "change-window-mode",
 
   requestDisplayMedia: "request-display-media",
   sendDisplayMedia: "send-display-media",
