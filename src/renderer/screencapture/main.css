@@ -1,6 +1,6 @@
 body {
-  background-color: #ffffff;
-  color: #37474f;
+  background-color: #EBECF0;
+  color: #61677C;
   font-family: monospace;
   padding: 15px;
   display: -webkit-flex;
@@ -15,35 +15,65 @@ body {
   text-align: center;
 }
 
-.capturer-list li {
-  list-style-type: none;
-  margin-right: 30px;
-  float: left;
-  padding: 10px;
-  border: 2px solid #F7F7F7;
-  margin: 10px;
-  /*height: 150px;*/
+.capturer-list {
+  display: flex;
+  flex-flow: row wrap;
+  margin: 0 auto;
 }
 
-.capturer-list li a {
-  text-decoration: none;
+.capturer-list button {
+  border: 0;
+  outline: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  list-style-type: none;
+  margin-right: 30px;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 8px;
+  background-color: #EBECF0;
+  color: #61677C;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
 .capturer-list img {
-  border: 1px solid #F7F7F7;
-  height: 98px;
+  height: 112px;
   width: 150px;
 }
 
-.capturer-list li:hover {
+.capturer-list button:hover {
   border-color: #666666;
+  box-shadow: -2px -2px 5px #FFF, 2px 2px 5px #BABECC;
 }
 
-.capturer-list span {
-  color: #37474f;
-  display: block;
+.capturer-list button:active {
+  box-shadow: inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF;
 }
 
-.cr ul {
-  padding: 0;
+
+.capturer-list button span {
+  margin-top: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1d1d1f;
+    color: #6e6e73;
+  }
+
+  .capturer-list button {
+    color: #6e6e73;
+    background-color: #1d1d1f;
+    text-shadow: 1px 1px 0 #1d1d1f;
+  }
+
+  .capturer-list button:hover {
+    box-shadow: inset 1px 1px 2px #424245, inset -1px -1px 2px #161617;
+  }
+  .capturer-list button:active {
+    box-shadow: -2px -2px 5px #161617, 2px 2px 5px #424245;
+  }
 }
