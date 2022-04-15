@@ -32,7 +32,6 @@ Application.prototype.togglePin = function () {
 };
 
 var app = null;
-
 window.electronAPI.handleAppReady(function () {
   app = new Application("toolbar");
 });

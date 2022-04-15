@@ -16,7 +16,9 @@ const CONSTANTS = {
 };
 
 const variables = {
-  isMinimize: false,
+  state: {
+    isScreenPicking: false,
+  },
   setting: {
     minimize: true,
     pin: true,
@@ -48,7 +50,7 @@ function handleChangeDisplay() {
  * @param {BrowserWindow} window
  */
 function minimize(window) {
-  if (!variables.setting.minimize) return;
+  if (!variables.setting.minimize || variables.state.isScreenPicking) return;
 
   /* save window size */
   const [width, height] = window.getSize();
@@ -106,13 +108,20 @@ function minimize(window) {
 /**
  * restore window
  * @param {BrowserWindow} window
+ * @param {boolean} reset
  */
-function restoreWindow(window) {
-  window.setSize(variables.size.width, variables.size.height);
-  setTimeout(
-    () => window.setPosition(variables.position.x, variables.position.y),
-    100
-  );
+function restoreWindow(window, reset = false) {
+  const width = reset ? CONSTANTS.default.width : variables.size.width;
+  const height = reset ? CONSTANTS.default.height : variables.size.height;
+  const x = reset
+    ? variables.screen.width / 2 - CONSTANTS.default.width / 2
+    : variables.position.x;
+  const y = reset
+    ? variables.screen.height / 2 - CONSTANTS.default.height / 2
+    : variables.position.y;
+
+  window.setSize(width, height);
+  setTimeout(() => window.setPosition(x, y), 100);
 
   window.setAlwaysOnTop(false);
   window.setVisibleOnAllWorkspaces(false);
@@ -121,8 +130,8 @@ function restoreWindow(window) {
   view.setBounds({
     x: 0,
     y: 40,
-    width: variables.size.width,
-    height: variables.size.height - 40,
+    width: width,
+    height: height - 40,
   });
   view.webContents.setZoomFactor(1);
   view.webContents.executeJavaScript(`
@@ -141,21 +150,6 @@ function restoreWindow(window) {
     if (document.getElementById("menu-block")) document.getElementById("menu-block").removeAttribute("style")
     if (document.querySelector("#away .center button")) document.querySelector("#away .center button").removeAttribute("style")
   `);
-}
-
-/**
- * restore window
- * @param {BrowserWindow} window
- */
-function resetWindow(window) {
-  restoreWindow(window);
-  handleChangeDisplay();
-
-  window.setSize(CONSTANTS.default.width, CONSTANTS.default.height);
-  window.setPosition(
-    variables.screen.width / 2 - CONSTANTS.default.width / 2,
-    variables.screen.height / 2 - CONSTANTS.default.height / 2
-  );
 }
 
 /**
@@ -200,6 +194,25 @@ function togglePin(window) {
   window.set;
 }
 
+/**
+ * toggle screen picker
+ * @param {BrowserWindow} window
+ */
+function handleOpenPicker(window) {
+  variables.state.isScreenPicking = true;
+}
+
+/**
+ * handle close screen picker
+ * @param {BrowserWindow} window
+ */
+function handleSelectedScreenId(window, selectedId) {
+  variables.state.isScreenPicking = false;
+
+  const view = window.getBrowserView();
+  view.webContents.send(messages.sourceIdSelected, selectedId);
+}
+
 module.exports = {
   open: function () {
     const window = new BrowserWindow({
@@ -208,7 +221,7 @@ module.exports = {
       titleBarStyle: "hidden",
       trafficLightPosition: { x: 10, y: 12 },
       webPreferences: {
-        preload: path.join(__dirname, "api/preload.js"),
+        preload: path.join(__dirname, "api/preload/main.js"),
       },
     });
     window.loadURL("file://" + __dirname + "/../renderer/browser/index.html");
@@ -217,7 +230,7 @@ module.exports = {
 
     const view = new BrowserView({
       webPreferences: {
-        preload: path.join(__dirname, "api/preload.js"),
+        preload: path.join(__dirname, "api/preload/main.js"),
       },
     });
     window.setBrowserView(view);
@@ -228,14 +241,63 @@ module.exports = {
 
     view.webContents.loadURL("https://unipos.ovice.in/login");
 
+    view.webContents.executeJavaScript(`
+      var captureSource = { id: null };
+      async function getDisplayMedia() {
+        const promise = new Promise((resolve) => {
+          captureSource = new Proxy(
+            captureSource,
+            {
+              set(obj, key, value) {
+                console.log(value);
+                resolve(value);
+                return Reflect.set(...arguments);
+              },
+            }
+          );
+        });
+      
+        window.electronAPI.showPicker();
+        const captureSourceId = await promise;
+        delete captureSource
+        captureSource = { id: null };
+        return captureSourceId;
+      }
+      
+      window.electronAPI.handleSourceIdSelected(function (event, id) {
+        console.log(id);
+        captureSource.id = id;
+      });
+      
+      navigator.mediaDevices.getDisplayMedia = async () => {
+        const captureSourceId = await getDisplayMedia();
+        console.log(captureSourceId)
+        
+        // create MediaStream
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            mandatory: {
+              chromeMediaSource: "desktop",
+              chromeMediaSourceId: captureSourceId,
+            },
+          },
+        });
+
+
+        return stream;
+      };
+    `);
+
     view.webContents.openDevTools();
 
     return window;
   },
   minimize,
   restoreWindow,
-  resetWindow,
   toggleMinimize,
   togglePin,
+  handleOpenPicker,
+  handleSelectedScreenId,
   handleChangeDisplay,
 };

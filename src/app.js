@@ -13,7 +13,7 @@ const {
  */
 let window = null;
 
-const variables = {
+const windowVariables = {
   isAppQuitting: false,
 };
 
@@ -33,7 +33,7 @@ app.on("activate", () => {
 });
 
 app.on("before-quit", function () {
-  variables.isAppQuitting = true;
+  windowVariables.isAppQuitting = true;
 });
 
 function registerWindowEvent() {
@@ -46,7 +46,7 @@ function registerWindowEvent() {
   });
 
   window.on("close", function (event) {
-    if (!variables.isAppQuitting) {
+    if (!windowVariables.isAppQuitting) {
       minimize(this);
       event.preventDefault();
     } else {
