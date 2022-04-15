@@ -1,14 +1,15 @@
 {
   "name": "ovice-app",
+  "productName": "ovice",
   "version": "1.0.0",
   "description": "",
   "main": "src/app.js",
   "scripts": {
     "start": "electron .",
     "build": "run-p build:*",
-    "build:mac": "electron-packager . oVice-app --platform=darwin --arch=arm64 --electronVersion=18.0.3 --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
-    "build:mac-x64": "electron-packager . oVice-app --platform=darwin --arch=x64 --electronVersion=18.0.3 --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
-    "buildx:win": "electron-packager . oVice-app --platform=win32 --electronVersion=18.0.3 --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
+    "build:mac": "electron-packager . oVice-app --platform=darwin --arch=arm64 --electronVersion=18.0.3 --icon=./src/assets/icon.icns --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
+    "build:mac-x64": "electron-packager . oVice-app --platform=darwin --arch=x64 --electronVersion=18.0.3 --icon=./src/assets/icon.icns --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
+    "buildx:win": "electron-packager . oVice-app --platform=win32 --electronVersion=18.0.3 --icon=./src/assets/icon.ico --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

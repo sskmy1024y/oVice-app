@@ -13,9 +13,6 @@ Application.prototype.reload = function () {
 Application.prototype.restore = function () {
   window.electronAPI.restore();
 };
-Application.prototype.openDevTools = function () {
-  this.webview.openDevTools();
-};
 Application.prototype.toggleStick = function () {
   this.browser.sticky = !this.browser.sticky;
   if (this.browser.sticky) {

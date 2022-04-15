@@ -19,7 +19,6 @@ module.exports = {
     dialog
       .loadURL("file://" + __dirname + "/../../renderer/gateway/index.html")
       .then(function () {
-        dialog.webContents.openDevTools();
         dialog.show();
       });
   },

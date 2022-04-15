@@ -1,4 +1,5 @@
 <div align="center">
+  <img width="198" alt="icon" src="https://user-images.githubusercontent.com/16918590/163621891-c078f9ac-df9c-46dd-91a7-1ea218e04075.png">
   <h1>oVice app</h1>
 </div>
 
@@ -14,11 +15,13 @@
 
 </div>
 
+## 🖥 Demo
 
+![demo](https://user-images.githubusercontent.com/16918590/163624464-37940982-87d6-4b60-9cc5-6c3d48312769.gif)
 
 ## ✅ Feature
 
-*   [x] **Auto minimize window on inactive**
+*   [x] **Switchable window mode**
     *   [x] Adjust some buttons (mic, cam, leave sheet, exist)
 *   [x] **Keep floating window**
 
@@ -35,6 +38,9 @@
 The MIT License (MIT)
 
 *   Copyright (c) 2022 Sho YAMASHITA
+
+
+<small>oVice is the product and service for which ovice.inc holds the rights. <br/>This application is in no way associated with oVice.inc</small>
 
 
 ## 🖋 Author
