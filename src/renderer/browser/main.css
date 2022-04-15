@@ -1,0 +1,70 @@
+html {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+div.menu {
+  width: 100%;
+  padding: 5px;
+  background-color: white;
+  color: black;
+  white-space: nowrap;
+  height: 33px;
+}
+
+input.address {
+  width: 50%;
+}
+
+.browser-container {
+  height: 100%;
+}
+
+.browser {
+  display: inline-block;
+  width: 100%;
+  height: 100%
+}
+
+.ready {
+  color: black;
+}
+
+.disabled {
+  color: darkgray;
+}
+
+.loading {
+  background-size: contain;
+  background: url(../shared/images/spinner.gif) no-repeat right;
+}
+
+
+#toolbar {
+  display: flex;
+  align-items: center;
+  padding-left: 72px;
+  height: 40px;
+  -webkit-app-region: drag;
+}
+
+#minimizedOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  -webkit-app-region: drag;
+}
