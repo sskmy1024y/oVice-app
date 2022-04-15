@@ -1,6 +1,6 @@
 "use strict";
 
-const { BrowserWindow, BrowserView, shell } = require("electron");
+const { BrowserWindow, BrowserView, shell, Event } = require("electron");
 const path = require("path");
 const messages = require("./api/lib/messages.js");
 const Store = require("electron-store");
@@ -28,6 +28,7 @@ const variables = {
   state: {
     isMinimized: false,
     isScreenPicking: false,
+    isAppQuitting: false,
   },
   setting: {
     roomId: null,
@@ -60,6 +61,27 @@ function handleChangeDisplay() {
   const { width, height } = primaryDisplay.workAreaSize;
   variables.screen.width = width;
   variables.screen.height = height;
+}
+
+/**
+ * @param {BrowserWindow} window
+ */
+function beforeQuit() {
+  store.set("setting", JSON.stringify(variables.setting));
+  variables.state.isAppQuitting = true;
+}
+
+/**
+ * @param {BrowserWindow} window
+ * @param {Event} event
+ */
+function quit(window, event) {
+  if (variables.setting.mode === "minimize" && !variables.state.isAppQuitting) {
+    event.preventDefault();
+    minimize(window);
+  } else {
+    window.send("app-end");
+  }
 }
 
 /**
@@ -247,8 +269,6 @@ function reflectWindowMode(window, mode) {
     `);
     }
   }
-
-  store.set("setting", JSON.stringify(variables.setting));
 }
 
 /**
@@ -345,7 +365,6 @@ function injectCustomJS(contents) {
  */
 function openOVice(window, roomId) {
   variables.setting.roomId = roomId;
-  store.set("setting", JSON.stringify(variables.setting));
 
   /**
    * @type {BrowserView}
@@ -379,8 +398,6 @@ function openOVice(window, roomId) {
   reflectWindowMode(window, variables.setting.mode);
 
   initPicker(window);
-
-  // view.webContents.openDevTools();
 }
 
 /**
@@ -434,6 +451,8 @@ module.exports = {
   },
   openOVice,
   minimize,
+  beforeQuit,
+  quit,
   restoreWindow,
   handleResized,
   handleMoved,

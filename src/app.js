@@ -8,6 +8,8 @@ const {
   handleChangeDisplay,
   handleMoved,
   handleResized,
+  quit,
+  beforeQuit,
 } = require("./browser/window.js");
 
 /**
@@ -15,12 +17,8 @@ const {
  */
 let window = null;
 
-const windowVariables = {
-  isAppQuitting: false,
-};
-
 app.on("window-all-closed", function () {
-  if (process.platform !== "darwin") app.quit();
+  app.quit();
 });
 
 app.whenReady().then(function () {
@@ -35,7 +33,7 @@ app.on("activate", () => {
 });
 
 app.on("before-quit", function () {
-  windowVariables.isAppQuitting = true;
+  beforeQuit(window);
 });
 
 function registerWindowEvent() {
@@ -56,11 +54,6 @@ function registerWindowEvent() {
   });
 
   window.on("close", function (event) {
-    if (!windowVariables.isAppQuitting) {
-      minimize(this);
-      event.preventDefault();
-    } else {
-      this.send("app-end");
-    }
+    quit(this, event);
   });
 }
