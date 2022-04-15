@@ -1,6 +1,6 @@
 "use strict";
 
-const { BrowserWindow, BrowserView } = require("electron");
+const { BrowserWindow, BrowserView, shell } = require("electron");
 const path = require("path");
 const messages = require("./api/lib/messages.js");
 const Store = require("electron-store");
@@ -280,6 +280,56 @@ function handleSelectedScreenId(window, selectedId) {
   view.webContents.send(messages.sourceIdSelected, selectedId);
 }
 
+/**
+ *
+ * @param {BrowserView.webContents} contents
+ */
+function injectCustomJS(contents) {
+  contents.executeJavaScript(`
+    var captureSource = { id: null };
+    async function getDisplayMedia() {
+      const promise = new Promise((resolve) => {
+        captureSource = new Proxy(
+          captureSource,
+          {
+            set(obj, key, value) {
+              resolve(value);
+              return Reflect.set(...arguments);
+            },
+          }
+        );
+      });
+    
+      window.electronAPI.showPicker();
+      const captureSourceId = await promise;
+      delete captureSource
+      captureSource = { id: null };
+      return captureSourceId;
+    }
+    
+    window.electronAPI.handleSourceIdSelected(function (event, id) {
+      captureSource.id = id;
+    });
+    
+    navigator.mediaDevices.getDisplayMedia = async () => {
+      const captureSourceId = await getDisplayMedia();
+      
+      // create MediaStream
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          mandatory: {
+            chromeMediaSource: "desktop",
+            chromeMediaSourceId: captureSourceId,
+          },
+        },
+      });
+
+      return stream;
+    };
+  `);
+}
+
 module.exports = {
   open: function () {
     const window = new BrowserWindow({
@@ -305,52 +355,15 @@ module.exports = {
     const [width, height] = window.getSize();
     view.setAutoResize({ width: true, height: true });
     view.setBounds({ x: 0, y: 40, width, height: height - 40 });
+    view.webContents.on("did-finish-load", function (event) {
+      injectCustomJS(this);
+    });
+    view.webContents.on("new-window", function (event, url) {
+      event.preventDefault();
+      shell.openExternal(url);
+    });
 
     view.webContents.loadURL("https://unipos.ovice.in/login");
-
-    view.webContents.executeJavaScript(`
-      var captureSource = { id: null };
-      async function getDisplayMedia() {
-        const promise = new Promise((resolve) => {
-          captureSource = new Proxy(
-            captureSource,
-            {
-              set(obj, key, value) {
-                resolve(value);
-                return Reflect.set(...arguments);
-              },
-            }
-          );
-        });
-      
-        window.electronAPI.showPicker();
-        const captureSourceId = await promise;
-        delete captureSource
-        captureSource = { id: null };
-        return captureSourceId;
-      }
-      
-      window.electronAPI.handleSourceIdSelected(function (event, id) {
-        captureSource.id = id;
-      });
-      
-      navigator.mediaDevices.getDisplayMedia = async () => {
-        const captureSourceId = await getDisplayMedia();
-        
-        // create MediaStream
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: {
-            mandatory: {
-              chromeMediaSource: "desktop",
-              chromeMediaSourceId: captureSourceId,
-            },
-          },
-        });
-
-        return stream;
-      };
-    `);
 
     reflectWindowMode(window, variables.setting.mode);
 

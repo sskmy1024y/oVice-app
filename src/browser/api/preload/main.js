@@ -12,7 +12,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   handleSourceIdSelected: (callback) =>
     ipcRenderer.on(messages.sourceIdSelected, callback),
   changeWindowMode: () => ipcRenderer.send(messages.changeWindowMode),
-
-  toggleMinimize: () => ipcRenderer.send(messages.toggleMinimize),
-  togglePin: () => ipcRenderer.send(messages.togglePin),
+  openLink: (url) => ipcRenderer.send(messages.openLink, url),
 });

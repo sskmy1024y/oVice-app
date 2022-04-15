@@ -9,9 +9,5 @@ module.exports = {
   getSources: "get-sources",
   sourceIdSelected: "source-id-selected",
   changeWindowMode: "change-window-mode",
-
-  requestDisplayMedia: "request-display-media",
-  sendDisplayMedia: "send-display-media",
-  toggleMinimize: "toggle-minimize",
-  togglePin: "toggle-pin",
+  openLink: "open-link",
 };

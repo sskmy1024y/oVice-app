@@ -1,6 +1,6 @@
 "use strict";
 
-const { ipcMain, desktopCapturer, Menu, BrowserWindow } = require("electron");
+const { ipcMain, shell, BrowserWindow } = require("electron");
 const { init: initPicker, show: showPicker } = require("./screen-picker.js");
 const messages = require("./api/lib/messages.js");
 const {
@@ -77,6 +77,9 @@ Application.prototype = {
     const window = dialog.getParentWindow();
     handleSelectedScreenId(window, id);
     dialog.hide();
+  },
+  openLink: function (event, url) {
+    shell.openExternal(url);
   },
 };
 
