@@ -1,14 +1,15 @@
 {
   "name": "ovice-app",
+  "productName": "ovice",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "src/app.js",
   "scripts": {
     "start": "electron .",
     "build": "run-p build:*",
-    "build:mac": "electron-packager . oVice-app --platform=darwin --arch=arm64 --electronVersion=18.0.3 --out ./output/ --overwrite",
-    "build:mac-x64": "electron-packager . oVice-app --platform=darwin --arch=x64 --electronVersion=18.0.3 --out ./output/ --overwrite",
-    "build:win": "electron-packager . oVice-app --platform=win32 --electronVersion=18.0.3 --out ./output/ --overwrite",
+    "build:mac": "electron-packager . oVice-app --platform=darwin --arch=arm64 --electronVersion=18.0.3 --icon=./src/assets/icon.icns --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
+    "build:mac-x64": "electron-packager . oVice-app --platform=darwin --arch=x64 --electronVersion=18.0.3 --icon=./src/assets/icon.icns --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
+    "buildx:win": "electron-packager . oVice-app --platform=win32 --electronVersion=18.0.3 --icon=./src/assets/icon.ico --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,7 +19,10 @@
   "author": "sho(@sskmy1024y)",
   "license": "MIT",
   "dependencies": {
-    "electron": "^18.0.3"
+    "electron": "^18.0.3",
+    "electron-prompt": "^1.7.0",
+    "electron-store": "^8.0.1",
+    "mac-screen-capture-permissions": "^2.0.0"
   },
   "devDependencies": {
     "asar": "^3.1.0",
