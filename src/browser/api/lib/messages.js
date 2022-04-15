@@ -10,4 +10,5 @@ module.exports = {
   sourceIdSelected: "source-id-selected",
   changeWindowMode: "change-window-mode",
   openLink: "open-link",
+  setRoomId: "set-room-id",
 };

@@ -1,15 +1,17 @@
 "use strict";
 
 const { ipcMain, shell, BrowserWindow } = require("electron");
-const { init: initPicker, show: showPicker } = require("./screen-picker.js");
 const messages = require("./api/lib/messages.js");
 const {
+  init: windowInitialize,
+  openOVice,
   restoreWindow,
   handleSelectedScreenId,
   handleOpenPicker,
   hanldeWindowMode,
 } = require("./window.js");
 
+require("./menu.js");
 function Application() {
   /**
    * @type {ScreenPicker}
@@ -21,14 +23,13 @@ function Application() {
     [messages.showPicker, this.showPicker],
     [messages.sourceIdSelected, this.sourceIdSelected],
     [messages.changeWindowMode, this.changeWindowMode],
+    [messages.setRoomId, this.setRoomId],
   ];
 }
 Application.prototype = {
   start: function () {
     this.init();
-    const window = require("./window.js").open();
-    initPicker(window);
-    return window;
+    return windowInitialize();
   },
   init: function () {
     var self = this;
@@ -46,6 +47,15 @@ Application.prototype = {
         );
       });
     });
+  },
+  setRoomId: function (event, roomId) {
+    /**
+     * @type {BrowserWindow}
+     */
+    const dialog = event.event.sender.getOwnerBrowserWindow();
+    const window = dialog.getParentWindow();
+    dialog.close();
+    openOVice(window, roomId);
   },
   reload: function (event) {
     const window = event.event.sender.getOwnerBrowserWindow();
@@ -67,7 +77,6 @@ Application.prototype = {
   showPicker: function (event) {
     const window = event.event.sender.getOwnerBrowserWindow();
     handleOpenPicker(window);
-    showPicker(window);
   },
   sourceIdSelected: function (event, id) {
     /**

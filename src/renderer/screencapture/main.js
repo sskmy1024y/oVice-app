@@ -1,11 +1,3 @@
-document.onkeydown = function (evt) {
-  evt = evt || window.event;
-  // Press esc key.
-  if (evt.keyCode === 27) {
-    ipcRenderer.send("source-id-selected", null);
-  }
-};
-
 /**
  * @param {String} HTML representing a single element
  * @return {Element}

@@ -1,7 +1,7 @@
 "use strict";
 
 const { BrowserWindow, desktopCapturer } = require("electron");
-const messages = require("./api/lib/messages");
+const messages = require("../api/lib/messages");
 const path = require("path");
 
 const excludeWindowNames = ["StatusIndicator", "Electron Screen Selector"];
@@ -16,11 +16,11 @@ module.exports = {
       height: 390,
       width: 680,
       webPreferences: {
-        preload: path.join(__dirname, "api/preload/picker.js"),
+        preload: path.join(__dirname, "/../api/preload/picker.js"),
       },
     });
     dialog.loadURL(
-      "file://" + __dirname + "/../renderer/screencapture/index.html"
+      "file://" + __dirname + "/../../renderer/screencapture/index.html"
     );
     this.dialog = dialog;
   },

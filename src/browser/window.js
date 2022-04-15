@@ -5,6 +5,11 @@ const path = require("path");
 const messages = require("./api/lib/messages.js");
 const Store = require("electron-store");
 const store = new Store();
+const { open: openModal } = require("./tools/gateway.js");
+const {
+  init: initPicker,
+  show: showPicker,
+} = require("./tools/screen-picker.js");
 
 const CONSTANTS = {
   window: {
@@ -25,6 +30,7 @@ const variables = {
     isScreenPicking: false,
   },
   setting: {
+    roomId: null,
     mode: "minimize",
     ...JSON.parse(store.get("setting", "{}")),
   },
@@ -70,8 +76,6 @@ function handleResized(window) {
     variables.window.default.width = width;
     variables.window.default.height = height;
   }
-
-  console.log(store.get("setting"));
 }
 
 /**
@@ -96,6 +100,7 @@ function handleMoved(window) {
  */
 function minimize(window) {
   if (
+    variables.setting.roomId === null ||
     variables.setting.mode !== "minimize" ||
     variables.state.isMinimized ||
     variables.state.isScreenPicking
@@ -166,6 +171,8 @@ function minimize(window) {
  * @param {boolean} reset
  */
 function restoreWindow(window, reset = false) {
+  if (variables.setting.roomId === null) return;
+
   const width = reset
     ? CONSTANTS.window.default.width
     : variables.window.default.width;
@@ -267,6 +274,7 @@ function hanldeWindowMode(window) {
  */
 function handleOpenPicker(window) {
   variables.state.isScreenPicking = true;
+  showPicker(window);
 }
 
 /**
@@ -330,8 +338,81 @@ function injectCustomJS(contents) {
   `);
 }
 
+/**
+ * Open oVice page
+ * @param {BrowserWindow} window
+ * @param {string} roomId
+ */
+function openOVice(window, roomId) {
+  variables.setting.roomId = roomId;
+  store.set("setting", JSON.stringify(variables.setting));
+
+  /**
+   * @type {BrowserView}
+   */
+  let view = window.getBrowserView();
+
+  if (view === null) {
+    view = new BrowserView({
+      webPreferences: {
+        preload: path.join(__dirname, "api/preload/main.js"),
+      },
+    });
+    window.setBrowserView(view);
+
+    view.webContents.on("new-window", function (event, url) {
+      event.preventDefault();
+      shell.openExternal(url);
+    });
+
+    view.webContents.on("did-finish-load", function (event) {
+      injectCustomJS(this);
+    });
+  }
+
+  const [width, height] = window.getSize();
+  view.setAutoResize({ width: true, height: true });
+  view.setBounds({ x: 0, y: 40, width, height: height - 40 });
+
+  view.webContents.loadURL(`https://${roomId}.ovice.in/login`);
+
+  reflectWindowMode(window, variables.setting.mode);
+
+  initPicker(window);
+
+  // view.webContents.openDevTools();
+}
+
+/**
+ * Reset all settings
+ * @param {BrowserWindow} window
+ */
+function resetAllSetting(window) {
+  let top = window.getParentWindow();
+  if (top === null) top = window;
+
+  restoreWindow(top, true);
+  variables.setting = {
+    roomId: null,
+    mode: "minimize",
+  };
+  variables.state = {
+    isMinimized: false,
+    isScreenPicking: false,
+  };
+  store.clear();
+
+  const children = top.getChildWindows();
+  if (children.length > 0) {
+    children.forEach((w) => w.close());
+  }
+  const view = top.getBrowserView();
+  top.removeBrowserView(view);
+  openModal(top);
+}
+
 module.exports = {
-  open: function () {
+  init: function () {
     const window = new BrowserWindow({
       width: CONSTANTS.window.default.width,
       height: CONSTANTS.window.default.height,
@@ -343,34 +424,15 @@ module.exports = {
     });
     window.loadURL("file://" + __dirname + "/../renderer/browser/index.html");
 
-    /** ====== open oVice page ======= */
-
-    const view = new BrowserView({
-      webPreferences: {
-        preload: path.join(__dirname, "api/preload/main.js"),
-      },
-    });
-    window.setBrowserView(view);
-
-    const [width, height] = window.getSize();
-    view.setAutoResize({ width: true, height: true });
-    view.setBounds({ x: 0, y: 40, width, height: height - 40 });
-    view.webContents.on("did-finish-load", function (event) {
-      injectCustomJS(this);
-    });
-    view.webContents.on("new-window", function (event, url) {
-      event.preventDefault();
-      shell.openExternal(url);
-    });
-
-    view.webContents.loadURL("https://unipos.ovice.in/login");
-
-    reflectWindowMode(window, variables.setting.mode);
-
-    view.webContents.openDevTools();
+    if (variables.setting.roomId === null) {
+      openModal(window);
+    } else {
+      openOVice(window, variables.setting.roomId);
+    }
 
     return window;
   },
+  openOVice,
   minimize,
   restoreWindow,
   handleResized,
@@ -379,4 +441,5 @@ module.exports = {
   handleOpenPicker,
   handleSelectedScreenId,
   handleChangeDisplay,
+  resetAllSetting,
 };
