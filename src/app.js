@@ -3,6 +3,7 @@
 const { app, BrowserWindow } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const Application = require("./browser/main.js");
+const { isWin } = require("./browser/utils/platform.js");
 const {
   minimize,
   restoreWindow,
@@ -33,8 +34,10 @@ app.whenReady().then(function () {
 });
 
 app.on("activate", () => {
-  checkUpdate(window);
-  restoreWindow(window);
+  if (!isWin) {
+    checkUpdate(window);
+    restoreWindow(window);
+  }
 });
 
 app.on("before-quit", function () {
@@ -48,7 +51,7 @@ function registerWindowEvent() {
   });
 
   window.on("blur", function () {
-    minimize(this);
+    if (!isWin) minimize(this);
   });
 
   window.on("moved", function () {

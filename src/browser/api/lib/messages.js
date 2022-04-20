@@ -11,4 +11,10 @@ module.exports = {
   changeWindowMode: "change-window-mode",
   openLink: "open-link",
   setRoomId: "set-room-id",
+
+  /* for windows */
+  windowsWindowMaximize: "windows-window-maximize",
+  windowsWindowRestore: "windows-window-restore",
+  windowsWindowMinimize: "windows-window-minimize",
+  windowsWindowClose: "windows-window-close",
 };

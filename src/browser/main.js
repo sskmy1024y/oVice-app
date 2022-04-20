@@ -24,6 +24,10 @@ function Application() {
     [messages.sourceIdSelected, this.sourceIdSelected],
     [messages.changeWindowMode, this.changeWindowMode],
     [messages.setRoomId, this.setRoomId],
+    [messages.windowsWindowMaximize, this.windows.windowMaximize],
+    [messages.windowsWindowMinimize, this.windows.windowMinimize],
+    [messages.windowsWindowClose, this.windows.windowClose],
+    [messages.windowsWindowRestore, this.windows.windowRestore],
   ];
 }
 Application.prototype = {
@@ -89,6 +93,25 @@ Application.prototype = {
   },
   openLink: function (event, url) {
     shell.openExternal(url);
+  },
+  // for windows
+  windows: {
+    windowMaximize: function (event) {
+      const window = event.event.sender.getOwnerBrowserWindow();
+      window.maximize();
+    },
+    windowMinimize: function (event) {
+      const window = event.event.sender.getOwnerBrowserWindow();
+      window.minimize();
+    },
+    windowRestore: function (event) {
+      const window = event.event.sender.getOwnerBrowserWindow();
+      window.unmaximize();
+    },
+    windowClose: function (event) {
+      const window = event.event.sender.getOwnerBrowserWindow();
+      window.close();
+    },
   },
 };
 

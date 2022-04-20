@@ -19,6 +19,7 @@ const {
   init: initPicker,
   show: showPicker,
 } = require("./tools/screen-picker.js");
+const { isWin } = require("./utils/platform.js");
 
 const CONSTANTS = {
   window: {
@@ -292,12 +293,15 @@ function reflectWindowMode(window, mode) {
 function hanldeWindowMode(window) {
   const currentMode = variables.setting.mode; // "pinned" | "minimize" | "normal"
 
-  const nextMode =
-    currentMode === "minimize"
-      ? "pinned"
-      : currentMode === "pinned"
+  const nextMode = isWin
+    ? currentMode === "pinned"
       ? "normal"
-      : "minimize";
+      : "pinned"
+    : currentMode === "minimize"
+    ? "pinned"
+    : currentMode === "pinned"
+    ? "normal"
+    : "minimize";
 
   reflectWindowMode(window, nextMode);
 }
