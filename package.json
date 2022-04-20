@@ -1,33 +1,69 @@
 {
   "name": "ovice-app",
   "productName": "ovice",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "src/app.js",
   "scripts": {
     "start": "electron .",
     "build": "run-p build:*",
-    "build:mac": "electron-packager . oVice-app --platform=darwin --arch=arm64 --electronVersion=18.0.3 --icon=./src/assets/icon.icns --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
-    "build:mac-x64": "electron-packager . oVice-app --platform=darwin --arch=x64 --electronVersion=18.0.3 --icon=./src/assets/icon.icns --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
-    "buildx:win": "electron-packager . oVice-app --platform=win32 --electronVersion=18.0.3 --icon=./src/assets/icon.ico --out ./output/ --app-bundle-id com.sskmy1024y.oviceapp --overwrite",
+    "build:mac": "electron-builder --mac --arm64",
+    "build:mac-x64": "electron-builder --mac --x64",
+    "buildx:win": "electron-builder --win --x64",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "oVice",
     "desktop"
   ],
-  "author": "sho(@sskmy1024y)",
+  "author": " (@sskmy1024y)",
   "license": "MIT",
   "dependencies": {
-    "electron": "^18.0.3",
+    "electron-fetch": "^1.7.4",
     "electron-prompt": "^1.7.0",
     "electron-store": "^8.0.1",
-    "mac-screen-capture-permissions": "^2.0.0"
+    "semver": "^7.3.7"
   },
   "devDependencies": {
     "asar": "^3.1.0",
+    "electron": "^18.0.3",
+    "electron-builder": "^23.0.3",
     "electron-packager": "^15.4.0",
     "electron-reload": "^2.0.0-alpha.1",
     "npm-run-all": "^4.1.5"
+  },
+  "build": {
+    "appId": "com.sskmy1024y.oviceapp",
+    "copyright": "Sho YAMASHITA",
+    "directories": {
+      "output": "output"
+    },
+    "files": [
+      "src",
+      "package.json",
+      "yarn.lock"
+    ],
+    "mac": {
+      "icon": "src/assets/icon.icns",
+      "identity": null,
+      "target": [
+        "dmg"
+      ]
+    },
+    "win": {
+      "icon": "src/assets/icon.ico",
+      "target": "nsis"
+    },
+    "dmg": {
+      "background": "src/assets/background.png",
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
