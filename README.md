@@ -25,6 +25,17 @@
     *   [x] Adjust some buttons (mic, cam, leave sheet, exist)
 *   [x] **Keep floating window**
 
+## 📲 How to Install
+
+**Download from [here](https://github.com/sskmy1024y/oVice-app/releases)**
+
+Are you using a mac?
+You can download using homebrew.
+
+```sh
+brew install sskmy1024y/tap/ovice-app
+```
+
 ## 🤝 Contributing
 
 1.  Fork it ( <https://github.com/sskmy1024y/oVice-app/fork> )
