@@ -10,7 +10,7 @@
     "build:mac": "electron-builder --mac --arm64",
     "build:mac-x64": "electron-builder --mac --x64",
     "buildx:win": "electron-builder --win --x64",
-    "publish": "electron-builder --publish",
+    "publish": "electron-builder --publish always",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -53,7 +53,13 @@
       "icon": "src/assets/icon.icns",
       "identity": null,
       "target": [
-        "dmg"
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ]
     },
     "win": {
