@@ -10,6 +10,7 @@
     "build:mac": "electron-builder --mac --arm64",
     "build:mac-x64": "electron-builder --mac --x64",
     "buildx:win": "electron-builder --win --x64",
+    "publish": "electron-builder --publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -22,13 +23,13 @@
     "electron-fetch": "^1.7.4",
     "electron-prompt": "^1.7.0",
     "electron-store": "^8.0.1",
+    "electron-updater": "^5.0.1",
     "semver": "^7.3.7"
   },
   "devDependencies": {
     "asar": "^3.1.0",
     "electron": "^18.0.3",
     "electron-builder": "^23.0.3",
-    "electron-packager": "^15.4.0",
     "electron-reload": "^2.0.0-alpha.1",
     "npm-run-all": "^4.1.5"
   },
@@ -43,6 +44,11 @@
       "package.json",
       "yarn.lock"
     ],
+    "publish": {
+      "provider": "github",
+      "owner": "sskmy1024y",
+      "repo": "oVice-app"
+    },
     "mac": {
       "icon": "src/assets/icon.icns",
       "identity": null,
