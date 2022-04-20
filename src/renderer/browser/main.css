@@ -98,7 +98,7 @@ button:active {
   }
 } */
 
-.mac #header {
+.win #header {
   display: flex;
   flex-direction: row;
   align-items: flex-end;
@@ -108,7 +108,7 @@ button:active {
   height: 40px;
 }
 
-.mac #windows-buttons .close:hover,
-.mac #windows-buttons .close:active {
+.win #windows-buttons .close:hover,
+.win #windows-buttons .close:active {
   color: #F06060;
 }

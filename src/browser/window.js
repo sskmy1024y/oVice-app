@@ -413,8 +413,6 @@ function openOVice(window, roomId) {
       shell.openExternal(url);
     });
 
-    view.webContents.openDevTools();
-
     view.webContents.on("did-finish-load", function (event) {
       injectCustomJS(this);
 
