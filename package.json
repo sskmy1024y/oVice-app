@@ -1,7 +1,7 @@
 {
   "name": "ovice-app",
   "productName": "oVice-app",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "",
   "main": "src/app.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "oVice",
     "desktop"
   ],
-  "author": " (@sskmy1024y)",
+  "author": "sho (@sskmy1024y)",
   "license": "MIT",
   "dependencies": {
     "electron-fetch": "^1.7.4",
