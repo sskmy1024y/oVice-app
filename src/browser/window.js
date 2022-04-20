@@ -10,6 +10,7 @@ const {
 const path = require("path");
 const semver = require("semver");
 const semverClean = require("semver/functions/clean");
+const currentVersion = require("../../package.json").version;
 const messages = require("./api/lib/messages.js");
 const Store = require("electron-store");
 const fetch = require("electron-fetch").default;
@@ -488,12 +489,14 @@ function resetAllSetting(window) {
  * @param {BrowserWindow} window
  */
 async function checkUpdate(window) {
+  if (variables.state.isShowedUpdateAlert) return;
+
   const result = await fetch(
     "https://api.github.com/repos/sskmy1024y/oVice-app/releases/latest"
   ).then(async (res) => await res.json());
 
   const latest = semverClean(result.tag_name);
-  const current = process.env.npm_package_version;
+  const current = currentVersion;
 
   if (semver.lt(current, latest)) {
     const res = await dialog.showMessageBox({
