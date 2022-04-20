@@ -10,6 +10,7 @@ const {
   handleResized,
   quit,
   beforeQuit,
+  checkUpdate,
 } = require("./browser/window.js");
 
 /**
@@ -29,6 +30,7 @@ app.whenReady().then(function () {
 });
 
 app.on("activate", () => {
+  checkUpdate(window);
   restoreWindow(window);
 });
 
@@ -39,6 +41,7 @@ app.on("before-quit", function () {
 function registerWindowEvent() {
   window.webContents.on("did-finish-load", function () {
     this.send("app-ready");
+    checkUpdate(window);
   });
 
   window.on("blur", function () {
