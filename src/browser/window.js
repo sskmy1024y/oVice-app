@@ -1,9 +1,18 @@
 "use strict";
 
-const { BrowserWindow, BrowserView, shell, Event } = require("electron");
+const {
+  BrowserWindow,
+  BrowserView,
+  shell,
+  Event,
+  dialog,
+} = require("electron");
 const path = require("path");
+const semver = require("semver");
+const semverClean = require("semver/functions/clean");
 const messages = require("./api/lib/messages.js");
 const Store = require("electron-store");
+const fetch = require("electron-fetch").default;
 const store = new Store();
 const { open: openModal } = require("./tools/gateway.js");
 const {
@@ -29,6 +38,7 @@ const variables = {
     isMinimized: false,
     isScreenPicking: false,
     isAppQuitting: false,
+    isShowedUpdateAlert: false,
   },
   setting: {
     roomId: null,
@@ -432,6 +442,30 @@ function resetAllSetting(window) {
   openModal(top);
 }
 
+/**
+ * check update for github release
+ * @param {BrowserWindow} window
+ */
+async function checkUpdate(window) {
+  const result = await fetch(
+    "https://api.github.com/repos/sskmy1024y/oVice-app/releases/latest"
+  ).then(async (res) => await res.json());
+
+  const latest = semverClean(result.tag_name);
+  const current = process.env.npm_package_version;
+
+  if (semver.lt(current, latest)) {
+    const res = await dialog.showMessageBox({
+      title: "Released new update",
+      message: "Please download new version application",
+      type: "info",
+    });
+
+    shell.openExternal("https://github.com/sskmy1024y/oVice-app/releases");
+    variables.state.isShowedUpdateAlert = true;
+  }
+}
+
 module.exports = {
   init: function () {
     const window = new BrowserWindow({
@@ -453,6 +487,7 @@ module.exports = {
 
     return window;
   },
+  checkUpdate,
   openOVice,
   minimize,
   beforeQuit,
