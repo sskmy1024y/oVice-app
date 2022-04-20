@@ -30,7 +30,12 @@ app.whenReady().then(function () {
   registerWindowEvent();
   handleChangeDisplay();
 
-  setInterval(() => autoUpdater.checkForUpdatesAndNotify(), 1000 * 60 * 10);
+  if (isWin) {
+    autoUpdater.checkForUpdatesAndNotify();
+    setInterval(() => autoUpdater.checkForUpdatesAndNotify(), 1000 * 60 * 10);
+  } else {
+    checkUpdate(window);
+  }
 });
 
 app.on("activate", () => {
@@ -47,7 +52,6 @@ app.on("before-quit", function () {
 function registerWindowEvent() {
   window.webContents.on("did-finish-load", function () {
     this.send("app-ready");
-    checkUpdate(window);
   });
 
   window.on("blur", function () {
