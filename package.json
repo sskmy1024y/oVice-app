@@ -1,6 +1,6 @@
 {
   "name": "ovice-app",
-  "productName": "ovice",
+  "productName": "oVice-app",
   "version": "1.0.1",
   "description": "",
   "main": "src/app.js",
@@ -63,6 +63,7 @@
       ]
     },
     "win": {
+      "publisherName": "https://github.com/sskmy1024y/oVice-app",
       "icon": "src/assets/icon.ico",
       "target": "nsis"
     },
