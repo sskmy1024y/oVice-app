@@ -19,6 +19,7 @@ const {
   init: initPicker,
   show: showPicker,
 } = require("./tools/screen-picker.js");
+const { isWin } = require("./utils/platform.js");
 
 const CONSTANTS = {
   window: {
@@ -292,12 +293,15 @@ function reflectWindowMode(window, mode) {
 function hanldeWindowMode(window) {
   const currentMode = variables.setting.mode; // "pinned" | "minimize" | "normal"
 
-  const nextMode =
-    currentMode === "minimize"
-      ? "pinned"
-      : currentMode === "pinned"
+  const nextMode = isWin
+    ? currentMode === "pinned"
       ? "normal"
-      : "minimize";
+      : "pinned"
+    : currentMode === "minimize"
+    ? "pinned"
+    : currentMode === "pinned"
+    ? "normal"
+    : "minimize";
 
   reflectWindowMode(window, nextMode);
 }
@@ -349,10 +353,6 @@ function injectCustomJS(contents) {
       return captureSourceId;
     }
     
-    window.electronAPI.handleSourceIdSelected(function (event, id) {
-      captureSource.id = id;
-    });
-    
     navigator.mediaDevices.getDisplayMedia = async () => {
       const captureSourceId = await getDisplayMedia();
       
@@ -369,6 +369,21 @@ function injectCustomJS(contents) {
 
       return stream;
     };
+
+    window.electronAPI.handleSourceIdSelected(function (event, id) {
+      captureSource.id = id;
+    });
+
+    window.electronAPI.handleMicButton(function (event, boolean) {
+      if (!document.querySelector("#mic-block>.bottom-menu-item.volumebar") || !document.querySelector("#openspace-mic")) return
+      const currentStatus = document.querySelector("#openspace-mic").className.split(" ").includes("bar-device-on")
+      if (currentStatus !== boolean) document.querySelector("#mic-block > .bottom-menu-item.volumebar").click()
+    })
+
+    window.electronAPI.handleAwayButton(function (event) {
+      if (!document.querySelector("#away-block")) return
+      document.querySelector("#away-block").click()
+    })
   `);
 }
 
@@ -400,6 +415,32 @@ function openOVice(window, roomId) {
 
     view.webContents.on("did-finish-load", function (event) {
       injectCustomJS(this);
+
+      if (isWin) {
+        window.setThumbarButtons([
+          {
+            tooltip: "Mute",
+            icon: path.join(__dirname, "/../assets/thumbar/mute.png"),
+            click() {
+              view.webContents.send(messages.pushMicButton, false);
+            },
+          },
+          {
+            tooltip: "Mic on",
+            icon: path.join(__dirname, "/../assets/thumbar/mic.png"),
+            click() {
+              view.webContents.send(messages.pushMicButton, true);
+            },
+          },
+          {
+            tooltip: "Away",
+            icon: path.join(__dirname, "/../assets/thumbar/coffee.png"),
+            click() {
+              view.webContents.send(messages.pushAwayButton);
+            },
+          },
+        ]);
+      }
     });
   }
 

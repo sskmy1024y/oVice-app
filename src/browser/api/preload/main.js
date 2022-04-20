@@ -13,4 +13,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.on(messages.sourceIdSelected, callback),
   changeWindowMode: () => ipcRenderer.send(messages.changeWindowMode),
   openLink: (url) => ipcRenderer.send(messages.openLink, url),
+  handleMicButton: (callback) =>
+    ipcRenderer.on(messages.pushMicButton, callback),
+  handleAwayButton: (callback) =>
+    ipcRenderer.on(messages.pushAwayButton, callback),
+
+  /* for windows */
+  windowsWindowMaximize: () => ipcRenderer.send(messages.windowsWindowMaximize),
+  windowsWindowRestore: () => ipcRenderer.send(messages.windowsWindowRestore),
+  windowsWindowMinimize: () => ipcRenderer.send(messages.windowsWindowMinimize),
+  windowsWindowClose: () => ipcRenderer.send(messages.windowsWindowClose),
 });

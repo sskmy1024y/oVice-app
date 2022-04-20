@@ -60,12 +60,6 @@ button:active {
   height: 100%;
   -webkit-app-region: drag;
 }
-#toolbar {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  height: 40px;
-}
 
 #minimizedOverlay {
   position: absolute;
@@ -75,6 +69,13 @@ button:active {
   bottom: 0;
   z-index: 9999;
   -webkit-app-region: drag;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 40px;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -96,3 +97,18 @@ button:active {
     box-shadow: -2px -2px 5px #161617, 2px 2px 5px #424245;
   }
 } */
+
+.win #header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  padding-left: 4px;
+  padding-right: 4px;
+  height: 40px;
+}
+
+.win #windows-buttons .close:hover,
+.win #windows-buttons .close:active {
+  color: #F06060;
+}
