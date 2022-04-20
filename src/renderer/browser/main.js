@@ -1,6 +1,6 @@
 "use strict";
 
-let isWindows = true;
+let isWindows = false;
 
 const ua = window.navigator.userAgent.toLowerCase();
 if (ua.indexOf("windows nt") !== -1) {

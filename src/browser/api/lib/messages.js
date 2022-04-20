@@ -11,6 +11,8 @@ module.exports = {
   changeWindowMode: "change-window-mode",
   openLink: "open-link",
   setRoomId: "set-room-id",
+  pushMicButton: "push-mic-button-from-main",
+  pushAwayButton: "push-away-button-from-main",
 
   /* for windows */
   windowsWindowMaximize: "windows-window-maximize",
