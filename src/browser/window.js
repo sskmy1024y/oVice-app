@@ -41,6 +41,7 @@ const variables = {
       height: CONSTANTS.window.default.height,
       x: 0,
       y: 0,
+      zoom: 1,
     },
     minimum: {
       width: CONSTANTS.window.minimum.width,
@@ -146,6 +147,9 @@ function minimize(window) {
   );
 
   const view = window.getBrowserView();
+
+  variables.window.default.zoom = view.webContents.getZoomFactor();
+
   view.setBounds({
     x: 0,
     y: 0,
@@ -223,7 +227,7 @@ function restoreWindow(window, reset = false) {
     width: width,
     height: height - 40,
   });
-  view.webContents.setZoomFactor(1);
+  view.webContents.setZoomFactor(variables.window.default.zoom);
   view.webContents.executeJavaScript(`
     var draggableOverlayId = "draggable-overlay"
     if (document.getElementById(draggableOverlayId)) document.getElementById(draggableOverlayId).remove()
